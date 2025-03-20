@@ -1,42 +1,133 @@
-#root {
-  max-width: 1280px;
+/* General Container Styling */
+.App {
+  font-family: 'Inter', sans-serif;
+  color: #333;
   margin: 0 auto;
   padding: 2rem;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #1976d2;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar h6 {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.navbar .navbar-buttons button {
+  margin-right: 1rem;
+  border: 1px solid white;
+  color: white;
+}
+
+.navbar .navbar-buttons button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Search Bar */
+.search-bar {
+  margin: 2rem 0;
+}
+
+/* Typography */
+.typography-h4 {
+  margin: 2rem 0 1rem 0;
+  font-weight: bold;
+}
+
+/* Movie Container - Flexbox */
+.movie-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around; /* Distribute items evenly */
+  align-items: flex-start; /* Align items at the top */
+  gap: 1.5rem;
+  padding: 1rem;
+  width: 100%;
+}
+
+/* Movie Card */
+.movie-card {
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+  flex: 1 1 calc(33.333% - 2rem); /* Ensures 3 cards per row */
+  max-width: 350px; /* Ensures proper scaling */
+}
+
+@media (max-width: 1024px) {
+  .movie-card {
+    flex: 1 1 calc(50% - 2rem); /* Adjust to 2 per row on medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .movie-card {
+    flex: 1 1 100%; /* Stack on small screens */
+  }
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-card img {
+  width: 100%;
+  height: auto;
+}
+
+.movie-card-content {
+  padding: 1rem;
+}
+
+.movie-card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.movie-card-overview {
+  font-size: 0.9rem;
+  color: #666;
+  height: 3em; /* Limit to 3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.movie-card-actions {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.movie-card-actions button {
+  background-color: #1976d2;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+  border: none;
 }
 
-.card {
-  padding: 2em;
+.movie-card-actions button:hover {
+  background-color: #145ca8;
 }
 
-.read-the-docs {
-  color: #888;
+/* Watchlist Section */
+.watchlist-empty {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  margin-top: 2rem;
 }
