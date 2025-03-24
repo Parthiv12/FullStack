@@ -3,7 +3,7 @@
 This is a full-stack web application that uses a React frontend and a Flask backend to provide personalized movie recommendations. The app integrates the TMDb API to fetch movie data and allows users to maintain a watchlist. Additional features like authentication and movie trailers can be added for an enhanced experience.
 
 ---
-
+NOTES FOR SELF -> use material ui skeleton when api is fetching data 
 ## Features
 
 ### Frontend:
@@ -160,3 +160,6 @@ This project is licensed under the [MIT License](LICENSE).
 - [Flask Documentation](https://flask.palletsprojects.com/en/latest/)
 - [React Documentation](https://react.dev/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/)
+
+
+

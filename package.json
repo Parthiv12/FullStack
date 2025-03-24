@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@tsparticles/slim": "^3.8.1",
+    "particles.js": "^2.0.0",
+    "react-router": "^7.4.0",
+    "react-router-dom": "^7.4.0"
+  }
+}
