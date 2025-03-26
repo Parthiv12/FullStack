@@ -3,16 +3,12 @@ import {
   Container,
   Grid,
   Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  Button,
   Typography,
   useMediaQuery,
   useTheme,
   Paper,
 } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MovieCard from './components/MovieCard';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
@@ -21,20 +17,54 @@ import { motion } from 'framer-motion';
 import { searchMovies } from './utils/api';
 import ParticleBackground from './components/ParticleBackground';
 import MovieSkeleton from './components/MovieSkeleton';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import TestPage from './pages/TestPage';
+import AuthPage from './pages/AuthPage';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-function App() {
-  const [movies, setMovies] = useState([]);
-  const [watchlist, setWatchlist] = useState([]);
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#FF4081',
+    },
+    secondary: {
+      main: '#FF80AB',
+    },
+    background: {
+      default: '#0a0a2a',
+      paper: 'rgba(255, 255, 255, 0.1)',
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+        },
+      },
+    },
+  },
+});
+
+const MainContent = () => {
+  const { user, loading } = useAuth();
   const [showIntro, setShowIntro] = useState(true);
-  const [openLogin, setOpenLogin] = useState(false);
-  const [openSignup, setOpenSignup] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
+  const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   const handleSearch = async (query) => {
     try {
@@ -48,281 +78,93 @@ function App() {
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:5000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Login successful:', data);
-        setOpenLogin(false);
-        // Handle successful login (e.g., store token, update UI)
-      } else {
-        console.error('Login failed:', data.message);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:5000/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(signupData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Signup successful:', data);
-        setOpenSignup(false);
-        // Handle successful signup (e.g., show success message, open login)
-      } else {
-        console.error('Signup failed:', data.message);
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-    }
-  };
+  if (showIntro) {
+    return <Intro onComplete={() => setShowIntro(false)} />;
+  }
 
-  const handleAddToWatchlist = (movie) => {
-    if (!watchlist.find(item => item.id === movie.id)) {
-      setWatchlist(prev => [...prev, movie]);
-    }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
-  };
+  if (!user && !showIntro) {
+    return <Navigate to="/auth" />;
+  }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/testing" element={<TestPage />} />
-        <Route path="/" element={
-          <Box sx={{ 
-            width: '100vw',
-            minHeight: '100vh',
-            margin: 0,
-            padding: 0,
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <ParticleBackground />
-            
-            {showIntro && <Intro onComplete={() => setShowIntro(false)} />}
-            
-            <Box sx={{ 
-              position: 'relative', 
-              zIndex: 2,
-              width: '100%',
-              height: '100%'
-            }}>
-              <Navbar 
-                onLoginClick={() => setOpenLogin(true)}
-                onSignupClick={() => setOpenSignup(true)}
-              />
-
-              <Container 
-                maxWidth={false} 
-                sx={{ 
-                  pt: 4, 
-                  pb: 8,
-                  px: { xs: 2, sm: 3, md: 4 },
-                  position: 'relative'
-                }}
-              >
-                <motion.div
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <motion.div variants={itemVariants}>
-                    <Box sx={{ mb: 4 }}>
-                      <SearchBar onSearch={handleSearch} />
-                    </Box>
-                  </motion.div>
-
-                  <motion.div variants={itemVariants}>
-                    <Typography 
-                      variant="h2" 
-                      sx={{ 
-                        textAlign: 'center',
-                        my: 4,
-                        color: 'white',
-                        textShadow: '0 0 10px rgba(0,255,255,0.5)',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      Discover Movies
-                    </Typography>
-                  </motion.div>
-
-                  <Grid container spacing={3}>
-                    {isLoading ? (
-                      // Show skeletons while loading
-                      [...Array(8)].map((_, index) => (
-                        <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-                          <MovieSkeleton />
-                        </Grid>
-                      ))
-                    ) : (
-                      // Show actual movies
-                      movies.map((movie) => (
-                        <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
-                          <motion.div variants={itemVariants}>
-                            <Paper elevation={8} sx={{ 
-                              height: '100%',
-                              transform: 'translateZ(0)',
-                              transition: 'transform 0.2s, box-shadow 0.2s',
-                              '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: 16
-                              }
-                            }}>
-                              <MovieCard
-                                movie={movie}
-                                onAddToWatchlist={handleAddToWatchlist}
-                              />
-                            </Paper>
-                          </motion.div>
-                        </Grid>
-                      ))
-                    )}
-                  </Grid>
-
-                  {watchlist.length > 0 && (
-                    <motion.div variants={itemVariants}>
-                      <Typography 
-                        variant="h3" 
-                        sx={{ 
-                          textAlign: 'center',
-                          my: 4,
-                          color: 'white',
-                          textShadow: '0 0 10px rgba(0,255,255,0.5)'
-                        }}
-                      >
-                        Your Watchlist
-                      </Typography>
-                      <Grid container spacing={3}>
-                        {watchlist.map((movie) => (
-                          <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
-                            <Paper elevation={8} sx={{ 
-                              height: '100%',
-                              transform: 'translateZ(0)',
-                              transition: 'transform 0.2s, box-shadow 0.2s',
-                              '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: 16
-                              }
-                            }}>
-                              <MovieCard movie={movie} />
-                            </Paper>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </motion.div>
-                  )}
-                </motion.div>
-              </Container>
+    <Box sx={{ 
+      width: '100vw',
+      minHeight: '100vh',
+      margin: 0,
+      padding: 0,
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <ParticleBackground />
+      <Box sx={{ 
+        position: 'relative', 
+        zIndex: 2,
+        width: '100%',
+        height: '100%'
+      }}>
+        <Navbar />
+        <Container 
+          maxWidth={false} 
+          sx={{ 
+            mt: 4,
+            px: { xs: 2, sm: 3, md: 4 }
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Box sx={{ mb: 4 }}>
+              <SearchBar onSearch={handleSearch} />
             </Box>
 
-            {/* Login Dialog */}
-            <Dialog open={openLogin} onClose={() => setOpenLogin(false)} fullWidth maxWidth="xs">
-              <DialogTitle>Login</DialogTitle>
-              <DialogContent>
-                <Box component="form" onSubmit={handleLogin} sx={{ mt: 2 }}>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Email"
-                    type="email"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                  />
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Password"
-                    type="password"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                  />
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                  >
-                    Login
-                  </Button>
-                </Box>
-              </DialogContent>
-            </Dialog>
-
-            {/* Signup Dialog */}
-            <Dialog open={openSignup} onClose={() => setOpenSignup(false)} fullWidth maxWidth="xs">
-              <DialogTitle>Sign Up</DialogTitle>
-              <DialogContent>
-                <Box component="form" onSubmit={handleSignup} sx={{ mt: 2 }}>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Name"
-                    value={signupData.name}
-                    onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
-                  />
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Email"
-                    type="email"
-                    value={signupData.email}
-                    onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                  />
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Password"
-                    type="password"
-                    value={signupData.password}
-                    onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                  />
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                  >
-                    Sign Up
-                  </Button>
-                </Box>
-              </DialogContent>
-            </Dialog>
-          </Box>
-        } />
-      </Routes>
-    </Router>
+            <Grid container spacing={3}>
+              {isLoading ? (
+                [...Array(8)].map((_, index) => (
+                  <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+                    <MovieSkeleton />
+                  </Grid>
+                ))
+              ) : (
+                movies.map((movie) => (
+                  <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <MovieCard movie={movie} />
+                    </motion.div>
+                  </Grid>
+                ))
+              )}
+            </Grid>
+          </motion.div>
+        </Container>
+      </Box>
+    </Box>
   );
-}
+};
+
+const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<MainContent />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;

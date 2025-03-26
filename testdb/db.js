@@ -10,7 +10,7 @@ const {
 } = require('./logs');
 
 // MongoDB Atlas Connection URI
-const MONGO_URI = "mongodb+srv://test:WXX8VNTdtjZ5ecVV@movierecommendation.am71b.mongodb.net/?retryWrites=true&w=majority&appName=MovieRecommendation";
+const MONGO_URI = "mongodb+srv://Testing:<1234>@cluster0.7kh0d.mongodb.net/";
 
 // Function to connect to MongoDB
 const connectDB = async () => {
